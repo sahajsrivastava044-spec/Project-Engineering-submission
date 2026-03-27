@@ -29,10 +29,33 @@ app.post('/chat', async (req, res) => {
   // 3. POST to https://openrouter.ai/api/v1/chat/completions
   //    with Authorization: Bearer <key> and the messages array
   // 4. Return the AI reply as { reply: "..." }
-  
-  // Placeholder response (will be replaced by student)
-  res.status(501).json({ error: "Method Not Implemented" });
+  try{
+  const {messages}=req.body;
+  const API_KEY=process.env.OPENROUTER_API_KEY
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body:JSON.stringify({
+      model: "openai/gpt-3.5-turbo",
+      messages: messages
+    })
+  })
+  const data = await response.json();
+  const reply = data.choices?.[0]?.message?.content;
+  res.status(201).json({ reply });
+}catch(error){
+  console.error(error);
+  res.status(500).json({
+    error: true,
+    message: 'Something went wrong'
+  });
+}
 });
+
+console.log("API KEY:", process.env.OPENROUTER_API_KEY);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
