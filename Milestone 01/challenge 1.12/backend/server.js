@@ -17,7 +17,10 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ status: "ok" });
 });
-
+app.all('/chat', (req, res, next) => {
+  console.log('chat request', req.method, req.originalUrl);
+  next(); 
+});
 /**
  * AI Chat Route
  * This is where the magic happens.
