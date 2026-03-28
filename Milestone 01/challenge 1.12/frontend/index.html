@@ -16,10 +16,16 @@
             <!-- Messages will appear here -->
         </div>
 
-        <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Type your message here..." autocomplete="off">
-            <button id="sendBtn">Send</button>
-        </div>
+        <form class="input-area" id="chatForm">
+    <input 
+        type="text" 
+        id="messageInput" 
+        placeholder="Type your message here..." 
+        autocomplete="off"
+        required
+    >
+    <button type="submit" id="sendBtn">Send</button>
+</form>
     </div>
 
     <script src="script.js"></script>

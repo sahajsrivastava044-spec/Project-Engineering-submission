@@ -17,11 +17,30 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ status: "ok" });
 });
-
+app.all('/chat', (req, res, next) => {
+  console.log('chat request', req.method, req.originalUrl);
+  next(); 
+});
 /**
  * AI Chat Route
  * This is where the magic happens.
  */
+app.all('/chat', (req, res, next) => {
+  if (req.method === 'POST') {
+    return next();
+  }
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  res.set('Allow', 'POST,OPTIONS');
+  return res.status(405).json({
+    error: 'Method Not Implemented',
+    message: 'Use POST /chat for conversation requests'
+  });
+});
+
 app.post('/chat', async (req, res) => {
   // TODO: Implement the AI chat route
   // 1. Extract `messages` from req.body
@@ -29,10 +48,59 @@ app.post('/chat', async (req, res) => {
   // 3. POST to https://openrouter.ai/api/v1/chat/completions
   //    with Authorization: Bearer <key> and the messages array
   // 4. Return the AI reply as { reply: "..." }
-  
-  // Placeholder response (will be replaced by student)
-  res.status(501).json({ error: "Method Not Implemented" });
+  try {
+    const { messages } = req.body;
+    const API_KEY = process.env.OPENROUTER_API_KEY;
+
+    if (!API_KEY) {
+      return res.status(500).json({
+        reply: null,
+        message: 'OPENROUTER_API_KEY is missing in environment variables'
+      });
+    }
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages: messages
+      })
+    });
+
+    const data = await response.json();
+    console.log('FULL API RESPONSE:', JSON.stringify(data, null, 2));
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        reply: null,
+        message: data.error?.message || data.error || 'OpenRouter API request failed'
+      });
+    }
+
+    const reply = data.choices?.[0]?.message?.content || data.choices?.[0]?.text || data.choices?.[0]?.delta?.content || null;
+
+    if (!reply) {
+      return res.status(500).json({
+        reply: null,
+        message: 'No response from AI (empty choices or unexpected response format)'
+      });
+    }
+
+    res.status(200).json({ reply });
+}catch(error){
+  console.error(error);
+  res.status(500).json({
+    error: true,
+    message: 'Something went wrong'
+  });
+}
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
