@@ -5,6 +5,14 @@ const chatDisplay = document.getElementById('chatDisplay');
 const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 
+
+const form = document.getElementById('chatForm');
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault(); // prevents page reload
+    sendMessage();
+});
+
 /**
  * Render a message bubble in the chat display
  */
@@ -25,20 +33,46 @@ async function sendMessage() {
     const text = messageInput.value.trim();
     if (!text) return;
 
-    // 1. Add user message to state
+    // 1. Store user message
     messages.push({ role: "user", content: text });
 
-    // 2. Render user bubble
+    // 2. Show it
     renderMessage("user", text);
 
-    // 3. Clear input
     messageInput.value = "";
 
-    // TODO: Call your backend /chat route here
-    // Send the full `messages` array — not just the latest message
-    // Hint: fetch('http://localhost:3000/chat', { method: 'POST', ... })
-    // On response: add { role: 'assistant', content: reply } to messages
-    // Render the assistant bubble in chatDisplay
+    try {
+        const res = await fetch('https://project-engineering-1.onrender.com/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ messages })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            const errorText = data.message || data.error || 'Unknown server error';
+            renderMessage('assistant', `Error: ${errorText}`);
+            return;
+        }
+
+        const reply = data.reply || data.message || 'No reply from server';
+
+        // 3. Store AI reply
+        messages.push({
+            role: 'assistant',
+            content: reply
+        });
+
+        // 4. Show AI reply
+        renderMessage("assistant", reply);
+
+    } catch (err) {
+        console.error(err);
+        renderMessage("assistant", "Error occurred");
+    }
 }
 
 // Event Listeners
