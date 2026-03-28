@@ -100,7 +100,7 @@ app.post('/chat', async (req, res) => {
 }
 });
 
-// console.log("API KEY:", process.env.OPENROUTER_API_KEY);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

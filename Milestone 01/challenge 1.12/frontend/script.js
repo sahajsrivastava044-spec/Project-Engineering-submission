@@ -6,7 +6,6 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const form = document.getElementById('chatForm');
 
-// 🔥 IMPORTANT: CHANGE THIS
 // For local:
 const API_URL = "http://localhost:3000/chat";
 
