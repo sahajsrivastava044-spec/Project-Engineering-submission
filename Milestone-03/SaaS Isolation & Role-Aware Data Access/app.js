@@ -6,6 +6,15 @@ const projectsRouter = require('./routes/projects');
 // JSON parsing middleware
 app.use(express.json());
 
+app.use((req, res, next) => {
+  req.user = {
+    id: 1,
+    role: "ADMIN",     // change to MANAGER / USER to test
+    tenant_id: 1
+  };
+  next();
+});
+
 // Main entry route
 app.get('/', (req, res) => {
   res.json({

@@ -58,3 +58,21 @@ The current version is an early release. The engineering team is moving fast, an
 ---
 **Status:** Alpha
 **License:** Private Internal Use Only
+
+## 🔐 Security Enhancements (Refactor)
+
+This version introduces multi-tenant isolation and role-based access control.
+
+### Key Improvements
+
+- Added `tenant_id` to isolate company data
+- Implemented RBAC (Admin, Manager, User)
+- Filtered sensitive fields (salary, ssn)
+- Prevented cross-tenant data access
+- Added indexes for performance
+
+### Data Protection
+
+- Users can only access data within their tenant
+- Sensitive fields are restricted by role
+- API responses are filtered before sending

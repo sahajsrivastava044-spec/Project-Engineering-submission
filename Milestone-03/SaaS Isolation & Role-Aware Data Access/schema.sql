@@ -5,21 +5,27 @@ DROP TABLE IF EXISTS billing_details;
 DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS users;
 
+CREATE TABLE tenants (
+  tenant_id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150),
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'employee',
-    salary DECIMAL(10,2) -- Base salary for payroll management
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  role TEXT CHECK (role IN ('ADMIN','MANAGER','USER')) NOT NULL,
+  salary NUMERIC,
+  ssn TEXT,
+  tenant_id INT NOT NULL,
+  FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id)
 );
 
 CREATE TABLE projects (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    status VARCHAR(20) DEFAULT 'active',
-    budget DECIMAL(12,2)
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  tenant_id INT NOT NULL,
+  FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id)
 );
 
 CREATE TABLE billing_details (
@@ -31,6 +37,11 @@ CREATE TABLE billing_details (
     billing_address TEXT
 );
 
+FOREIGN KEY (user_id, tenant_id)
+REFERENCES users(id, tenant_id)
+
+CREATE INDEX idx_users_tenant ON users(tenant_id);
+CREATE INDEX idx_projects_tenant ON projects(tenant_id);
 -- Seed Initial Data
 INSERT INTO users (full_name, email, password_hash, role, salary) VALUES
 ('Alice Johnson', 'alice@pouch.io', 'pbkdf2:sha256:600000$hasher$81726a', 'admin', 125000.00),
