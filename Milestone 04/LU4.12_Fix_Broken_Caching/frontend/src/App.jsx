@@ -15,6 +15,7 @@ function App() {
       const response = await fetch('http://localhost:5000/tasks');
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
+      // console.log("API DATA:", data);
       setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching:', err);
