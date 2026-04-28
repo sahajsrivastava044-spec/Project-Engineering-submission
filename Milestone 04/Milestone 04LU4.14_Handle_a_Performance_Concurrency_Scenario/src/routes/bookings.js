@@ -1,68 +1,42 @@
-// src/routes/bookings.js
-
 const express = require('express');
 const router  = express.Router();
-const bookingService = require('../services/bookingService');
 
-// ❌ FLAW 1: No rate limiter on this route.
-//
-// Any IP can send unlimited requests per second.
-// A bot or a double-click can flood this endpoint and exhaust
-// your server's resources before a single real user gets through.
-//
-// Fix required:
-//   - Install express-rate-limit
-//   - Create src/middleware/rateLimiter.js
-//   - Apply bookingLimiter as middleware before this handler
+const bookingService = require('../services/bookings');
+const bookingLimiter = require('../middleware/rateLimiter');
 
 // POST /api/bookings/book
-// Books a seat for a show on behalf of a user
-router.post('/book', async (req, res, next) => {
+router.post('/book', bookingLimiter, async (req, res, next) => {
   try {
     const { userId, seatId, showId } = req.body;
 
+    // ✅ Request validation (allowed in routes)
     if (!userId || !seatId || !showId) {
       return res.status(400).json({
+        success: false,
         message: 'userId, seatId, and showId are required'
       });
     }
 
+    // ✅ Call service (no DB logic here)
     const result = await bookingService.createBooking({
       userId: Number(userId),
       seatId: Number(seatId),
       showId: Number(showId)
     });
 
+    // ✅ Handle service response
     if (!result.success) {
-      return res.status(result.status).json({ message: result.message });
+      return res.status(result.status).json({
+        success: false,
+        message: result.message
+      });
     }
 
-    res.status(201).json(result.booking);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /api/bookings/show/:showId
-// Returns all bookings for a show — useful for verifying race condition results
-router.get('/show/:showId', async (req, res, next) => {
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-
-    const bookings = await prisma.booking.findMany({
-      where: { showId: Number(req.params.showId) },
-      include: {
-        user: { select: { id: true, name: true } },
-        seat: { select: { id: true, number: true } }
-      },
-      orderBy: { createdAt: 'asc' }
+    return res.status(201).json({
+      success: true,
+      data: result.data
     });
 
-    res.status(200).json({
-      total: bookings.length,
-      bookings
-    });
   } catch (err) {
     next(err);
   }
