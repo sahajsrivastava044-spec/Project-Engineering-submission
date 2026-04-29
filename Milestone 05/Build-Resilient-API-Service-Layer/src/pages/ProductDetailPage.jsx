@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { getProductById, getProductsByCategory, submitReview } from '../services/api'
 
 const enrich = (p) => ({
   ...p,
@@ -26,64 +27,63 @@ export default function ProductDetailPage() {
 
   // ❌ BAD: Yet another hardcoded URL with its own error handling pattern
   useEffect(() => {
-    setLoading(true)
-    fetch(`https://fakestoreapi.com/products/${id}`)
-      .then(async res => {
-        if (res.status === 404) throw new Error('Product not found')
-        // ❌ No handling for 401, 500, etc.
-        return res.json()
-      })
-      .then(data => {
-        const enriched = enrich(data)
-        setProduct(enriched)
-        // ❌ Nested fetch inside a fetch — spaghetti code!
-        return fetch(`https://fakestoreapi.com/products/category/${enriched.category}`)
-      })
-      .then(res => res.json())
-      .then(items => {
-        setRelated(items.filter(p => p.id !== parseInt(id)).slice(0, 3))
-        setLoading(false)
-      })
-      .catch(err => {
-        setError(err.message)
-        setLoading(false)
-      })
+    const fetchProductDetails=async()=>{
+      setLoading(true);
+      try {
+        const productRes=await getProductById(id);
+
+        const enriched=enrich(productRes.data);
+        setProduct(enriched);
+
+        const relatedRes=await getProductsByCategory(enriched.category);
+
+        const filtered=relatedRes.data
+        .filter(p=>p.id!==parseInt(id))
+        .slice(0,3);
+
+        setRelated(filtered);
+      } catch (err) {
+          if (err.response?.status === 404) {
+          setError('Product not found');
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
   }, [id])
 
   // ❌ Token grabbed manually AGAIN — fourth time in this codebase
   const handleAddToCart = async () => {
-    const token = localStorage.getItem('auth_token')
     try {
-      const res = await fetch('https://fakestoreapi.com/carts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId: 1, date: new Date().toISOString(), products: [{ productId: product.id, quantity: 1 }] }),
-      })
-      if (!res.ok) throw new Error('Cart update failed')
-      setInCart(true)
+      await addToCart({
+        userId:1,
+        date:new Date()/toISOString(),
+        products:[{productId:product.id,quantity:1}],
+      });
+
+      setInCart(true);
     } catch (err) {
       alert('Failed to add: ' + err.message) // alert()? seriously?
     }
   }
 
   const handleReview = async (e) => {
-    e.preventDefault()
-    setReviewLoading(true)
-    const token = localStorage.getItem('auth_token') // copied AGAIN
+    e.preventDefault();
+    setReviewLoading(true);
+
     try {
-      await fetch('https://fakestoreapi.com/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ productId: id, rating: 5 }),
-      })
-      setReviewLoading(false)
-      alert('Review submitted!')
+      await submitReview({
+        productId:id,
+        rating:5,
+      });
+
+      alert('Review submitted!');
     } catch (err) {
+      alert("Review failed: "+ err.message);
+    }finally{
       setReviewLoading(false)
-      alert('Review failed: ' + err.message)
     }
   }
 

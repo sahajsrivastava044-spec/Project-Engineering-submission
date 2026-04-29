@@ -1,6 +1,7 @@
 // 🚨 BROKEN: Cart page also doing its own fetch — third different pattern in the codebase!
 
 import { useState, useEffect } from 'react'
+import { deleteCart, getUserCart } from '../services/api'
 
 export default function CartPage() {
   const [cart, setCart] = useState(null)
@@ -8,47 +9,55 @@ export default function CartPage() {
   const [error, setError] = useState(null)
   const [removing, setRemoving] = useState(null)
 
-  // ❌ Yet another hardcoded URL — count how many exist in this codebase!
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/carts/user/1`)
-      .then(res => res.json()) // ❌ Not checking res.ok at all!
-      .then(async (carts) => {
-        if (!carts || carts.length === 0) {
-          setCart({ products: [] })
-          setLoading(false)
-          return
+    const fetchMart=async ()=>{
+      setLoading(true);
+      try{
+        const res=await getUserCart();
+        const carts=res.data;
+
+        if(!carts||carts.length===0){
+          setCart({products:[]});
+          return;
         }
-        const latest = carts[carts.length - 1]
-        // ❌ Nested fetches — very hard to read and maintain
-        const productDetails = await Promise.all(
-          latest.products.map(item =>
-            fetch(`https://fakestoreapi.com/products/${item.productId}`) // URL #5!
-              .then(r => r.json())
-              .then(p => ({ ...p, quantity: item.quantity }))
-          )
-        )
-        setCart({ ...latest, productDetails })
-        setLoading(false)
-      })
-      .catch(() => {
-        setError('Could not load your cart') // generic error, no logging, no retry
-        setLoading(false)
-      })
+
+        const latest=carts[carts.length-1];
+
+
+        const productDetails=await Promise.all(
+          latest.products.map(async (item)=>{
+            const productRes = await getProductById(item.productId);
+            return{
+              ...productRes.data,
+              quantity:item.quantity,
+            };
+          })
+        );
+
+        setCart({...latest,productDetails});
+      }catch(error){
+        console.error("Cart load error:",err);
+        setError("Could not load your cart");
+      }finally{
+        setLoading(false);
+      }
+    };
+
+    fetchMart();
   }, [])
 
   const handleRemove = async (productId) => {
     setRemoving(productId)
-    const token = localStorage.getItem('auth_token') // AGAIN manual token retrieval
     try {
-      await fetch(`https://fakestoreapi.com/carts/${cart.id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      setCart(prev => ({ ...prev, productDetails: prev.productDetails.filter(p => p.id !== productId) }))
-    } catch (err) {
-      alert('Remove failed: ' + err.message) // alert() again!
+      await deleteCart(cart.id);
+      setCart(prev=>({
+        ...prev,
+        productDetails:prev.productDetails.filter(p=>p.id!==productId),
+      }));
+    } catch (error) {
+      alert("Remove failed: "+err.message);
     }
-    setRemoving(null)
+    setRemoving(null);
   }
 
   if (loading) return (
