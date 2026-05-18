@@ -16,6 +16,24 @@ app.get('/', (req, res) => {
   });
 });
 
+// Mock authentication middleware
+app.use((req, res, next) => {
+  const tenantId = req.headers['x-tenant-id'];
+  const userRole = req.headers['x-user-role'];
+  const userId = req.headers['x-user-id'];
+
+  if (!tenantId || !userRole || !userId) {
+    return res.status(401).json({ error: 'Missing authentication headers (x-tenant-id, x-user-role, x-user-id)' });
+  }
+
+  req.user = {
+    tenantId: parseInt(tenantId, 10),
+    role: userRole,
+    id: parseInt(userId, 10)
+  };
+  next();
+});
+
 // Register routers
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
