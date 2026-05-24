@@ -1,5 +1,5 @@
 import Expense from '../models/Expense.js';
-
+ 
 // @desc    Get all expenses
 // @route   GET /api/expenses
 // @access  Protected (Should be manager/admin-only)
@@ -34,10 +34,31 @@ export const createExpense = async (req, res) => {
 // @route   PUT /api/expenses/:id
 // @access  Protected (Gap 4 — No ownership check)
 export const updateExpense = async (req, res) => {
-  // ❌ Any user can update any expense — no check: expense.submittedBy === req.user.userId
-  const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(expense);
+  try {
+    const expense = await Expense.findById(req.params.id);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Ownership check
+    if (expense.submittedBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update this expense" });
+    }
+
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.json(updatedExpense);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 // @desc    Approve an expense
 // @route   PUT /api/expenses/:id/approve

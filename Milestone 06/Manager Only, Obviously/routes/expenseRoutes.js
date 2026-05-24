@@ -8,16 +8,16 @@ import {
   rejectExpense, 
   deleteExpense 
 } from '../controllers/expenseController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { allowedRoles, protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', protect, getAllExpenses);           // ❌ should be manager+
+router.get('/', protect, allowedRoles("admin","manager"), getAllExpenses);           // ❌ should be manager+
 router.get('/mine', protect, getMyExpenses);
 router.post('/', protect, createExpense);
 router.put('/:id', protect, updateExpense);
-router.put('/:id/approve', protect, approveExpense); // ❌ should be manager+
-router.put('/:id/reject', protect, rejectExpense);   // ❌ should be manager+
-router.delete('/:id', protect, deleteExpense);      // ❌ should be admin-only
+router.put('/:id/approve', protect, allowedRoles("admin","manager"), approveExpense); // ❌ should be manager+
+router.put('/:id/reject', protect, allowedRoles("admin","manager"), rejectExpense);   // ❌ should be manager+
+router.delete('/:id', protect, allowedRoles("admin"),deleteExpense);      // ❌ should be admin-only
 
 export default router;
