@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { getPoll, vote } from '../api/poll';
 import { LogOut, RefreshCcw, Vote, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -11,6 +12,8 @@ const Dashboard = () => {
   const [voting, setVoting] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const intervalRef = useRef(null);
+  const navigate = useNavigate();
+  
 
   const fetchPoll = async (showLoading = false) => {
     if (showLoading) setLoading(true);
@@ -20,6 +23,7 @@ const Dashboard = () => {
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Failed to fetch poll', err);
+      navigate('/login');
       // INTENTIONAL: NO REDIRECTION ON FAIL DURING POLLING
     } finally {
       if (showLoading) setLoading(false);
@@ -45,6 +49,7 @@ const Dashboard = () => {
     } catch (err) {
       // INTENTIONAL MISHANDLING: JUST SHOW ALERT
       alert(err.response?.data?.message || 'Vote failed. Token might be expired.');
+      // navigate('/login');
       // The user remains on the dashboard, and the polling continues even if 401 or 500
     } finally {
       setVoting(null);

@@ -13,6 +13,16 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
+client.interceptors.response.use(
+  (response)=>response,
+  (error)=>{
+    if(error.response && error.response.status===401){
+      localStorage.removeItem('token')
+      window.location.href='/login';
+    }
+    return Promise.reject(error);
+  }
+)
 // INTENTIONAL MISSING INTERCEPTOR:
 // The student should implement a response interceptor to handle 401 status.
 // Currently, error handling is left to the individual components.
