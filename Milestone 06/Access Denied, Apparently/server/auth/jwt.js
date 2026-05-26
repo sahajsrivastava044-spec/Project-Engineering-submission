@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 
+
 const SECRET = 'matrix-secret-key-123'; // Hardcoded for simplicity in this challenge
 
 export const generateToken = (userId) => {
