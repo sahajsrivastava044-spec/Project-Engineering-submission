@@ -13,7 +13,12 @@ router.get('/:id/activity', async (req, res) => {
     // The high row width will make this query significantly slower.
     const activities = await prisma.activity.findMany({
       where: { userId: id },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      select:{
+        id:true,
+        type:true,
+        createdAt:true
+      }
     });
 
     res.json({
