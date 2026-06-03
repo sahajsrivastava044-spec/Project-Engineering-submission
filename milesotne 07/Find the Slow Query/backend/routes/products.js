@@ -17,6 +17,13 @@ router.get('/', async (req, res) => {
     const products = await prisma.product.findMany({
       where: { category },
       orderBy: { createdAt: 'desc' },
+      select:{
+        id:true,
+        name:true,
+        price:true,
+        category:true,
+        createdAt:true
+      }
     });
 
     res.json({
