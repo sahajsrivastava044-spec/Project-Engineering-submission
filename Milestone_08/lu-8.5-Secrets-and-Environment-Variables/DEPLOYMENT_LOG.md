@@ -9,7 +9,21 @@
 <!-- Describe the error(s) you observed when deploying to Render. Paste relevant Render log lines below. -->
 
 ```
-(paste Render logs here)
+ Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running 'npm start'
+> notevault-api@1.0.0 start
+> node src/index.js
+🚀 NoteVault API running on port 10000
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://project-engineering-submission.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+==> Detected service running on port 10000
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
 ```
 
 ---
@@ -20,10 +34,10 @@
 
 | # | Issue Found | File(s) Affected | Why It Caused a Failure |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 |hardcooded URL for database |src/config/db.js | no env file|
+| 2 |hardcoded JWT secret |frontend/src/config.js | no env file|
+| 3 |hardcoded JWT secret |middleware/auth.js | no env file|
+| 4 |no validateENV function |index.js | no env file|
 
 ---
 
@@ -32,16 +46,16 @@
 <!-- Describe every change you made to fix the deployment. Reference filenames and line numbers. -->
 
 ### Fix 1:
-
+created an .env file and made sure that alll the values are referenced from them instead of hardcoding.
 
 ### Fix 2:
-
+created the DATEBASE_URL and JWT_SECRET in the render.yml file
 
 ### Fix 3:
-
+created and implememed the validateEnv function to validate the values
 
 ### Fix 4:
-
+created references instead of harcoding values
 
 ---
 

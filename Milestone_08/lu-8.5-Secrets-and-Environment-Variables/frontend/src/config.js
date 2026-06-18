@@ -10,7 +10,7 @@
 // SHOULD USE: import.meta.env.VITE_API_URL
 // ============================================================
 
-export const API_URL = "http://localhost:3000/api";
+export const API_URL = import.meta.env.VITE_API_URL;
 
 // Helper for making API requests
 export const apiRequest = async (endpoint, options = {}) => {
