@@ -25,7 +25,16 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+function validateEnv() {
+  const required = ["DATABASE_URL", "JWT_SECRET"];
+  const missing = required.filter((key) => !process.env[key]);
+  
+  if (missing.length > 0) {
+    console.error(`❌ Missing required environment variables: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+}
+app.use(validateEnv);
 // Routes
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
