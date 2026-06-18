@@ -34,7 +34,7 @@ function validateEnv() {
     process.exit(1);
   }
 }
-app.use(validateEnv);
+validateEnv();
 // Routes
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
