@@ -63,17 +63,46 @@ created references instead of harcoding values
 
 <!-- Paste evidence that the app now deploys and runs successfully. -->
 
-- **Render Dashboard Screenshot**: (attach or link)
+- **Render Dashboard Screenshot**: [Render deployed link](https://project-engineering-submission.onrender.com/)
 - **Health Check Response**:
 
 ```json
-(paste /api/health response here)
+{"name":"NoteVault API","version":"1.0.0","docs":"/api/health"}
 ```
 
 - **Render Logs (successful startup)**:
 
 ```
-(paste clean startup logs here)
+==> Running 'npm start'
+> notevault-api@1.0.0 start
+> node src/index.js
+🚀 NoteVault API running on port 10000
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running 'npm start'
+> notevault-api@1.0.0 start
+> node src/index.js
+🚀 NoteVault API running on port 3000
+==> New primary port detected: 3000. Restarting deploy to update network configuration...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+==> Running 'npm start'
+> notevault-api@1.0.0 start
+> node src/index.js
+🚀 NoteVault API running on port 3000
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://project-engineering-submission.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+==> Detected a new open port HTTP:3000
+==> Detected a new open port HTTP:3000
+==> Detected a new open port HTTP:3000
+==> Detected a new open port HTTP:3000
+==> Detected a new open port HTTP:3000
+==> Detected service running on port 3000
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
 ```
 
 ---
