@@ -39,7 +39,7 @@ function App() {
     setLoading(true);
 
     try {
-      const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
+      const endpoint = isSignup ? "/auth/signup" : "/auth/login";
       const body = isSignup
         ? { email, password, name }
         : { email, password };
@@ -61,7 +61,7 @@ function App() {
 
   const fetchBookmarks = async () => {
     try {
-      const data = await apiRequest("/api/bookmarks");
+      const data = await apiRequest("/bookmarks");
       setBookmarks(data);
     } catch (err) {
       setError(err.message);
@@ -73,7 +73,7 @@ function App() {
     setError("");
 
     try {
-      await apiRequest("/api/bookmarks", {
+      await apiRequest("/bookmarks", {
         method: "POST",
         body: JSON.stringify({
           url: bmUrl,
@@ -92,7 +92,7 @@ function App() {
 
   const deleteBookmark = async (id) => {
     try {
-      await apiRequest(`/api/bookmarks/${id}`, { method: "DELETE" });
+      await apiRequest(`/bookmarks/${id}`, { method: "DELETE" });
       fetchBookmarks();
     } catch (err) {
       setError(err.message);
