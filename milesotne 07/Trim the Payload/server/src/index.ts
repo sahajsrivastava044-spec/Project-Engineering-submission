@@ -11,7 +11,16 @@ app.use(express.json());
 // BROKEN ENDPOINT: Multiple performance killers
 app.get('/api/orders', async (req, res) => {
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await prisma.order.count();
+    const totalPages = Math.ceil(total / limit);
+
     const orders = await prisma.order.findMany({
+      skip,
+      take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
         user: true,
@@ -34,7 +43,16 @@ app.get('/api/orders', async (req, res) => {
       };
     });
 
-    res.json(processedData);
+    res.json({
+      data: processedData,
+      meta: {
+        currentPage: page,
+        totalPages,
+        total,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch orders' });
