@@ -22,11 +22,31 @@ app.get('/api/orders', async (req, res) => {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
-        user: true,
+      select: {
+        id: true,
+        createdAt: true,
+        status: true,
+        total: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true
+          }
+        },
         items: {
-          include: {
-            product: true
+          select: {
+            id: true,
+            productId: true,
+            quantity: true,
+            price: true,
+            product: {
+              select: {
+                name: true,
+                image: true
+              }
+            }
           }
         }
       }
