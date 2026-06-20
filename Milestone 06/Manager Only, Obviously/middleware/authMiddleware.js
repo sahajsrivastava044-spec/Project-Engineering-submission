@@ -27,9 +27,9 @@ const protect = async (req, res, next) => {
 function allowedRoles(...roles){
   return (req,res,next)=>{
     // console.log(req.user.role)
-    console.log(roles);
+    // console.log(roles);
       if(roles.includes(req.user.role)){
-        console.log(true)
+        // console.log(true)
         next()
       }else{
         console.log(false)
