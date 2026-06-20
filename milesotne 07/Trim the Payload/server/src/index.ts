@@ -52,11 +52,7 @@ app.get('/api/orders', async (req, res) => {
       }
     });
 
-    // PROBLEM 3: Blocking Event Loop (Sync processing of a large array)
-    // Simulating heavy data transformation that freezes the server
     const processedData = orders.map(order => {
-      const start = Date.now();
-      while (Date.now() - start < 1) { /* Artificial 1ms block per order */ }
       return {
         ...order,
         _metadata: { processedAt: new Date().toISOString() }
