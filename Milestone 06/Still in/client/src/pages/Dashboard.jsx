@@ -49,7 +49,7 @@ const Dashboard = () => {
     } catch (err) {
       // INTENTIONAL MISHANDLING: JUST SHOW ALERT
       alert(err.response?.data?.message || 'Vote failed. Token might be expired.');
-      // navigate('/login');
+      navigate('/login');
       // The user remains on the dashboard, and the polling continues even if 401 or 500
     } finally {
       setVoting(null);

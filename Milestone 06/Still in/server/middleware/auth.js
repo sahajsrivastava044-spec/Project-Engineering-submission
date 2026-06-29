@@ -10,7 +10,6 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = verifyToken(token);
-    // if(decoded.exp<Math.floor(Date.now()))
     req.user = decoded;
     next();
   } catch (err) {
