@@ -10,10 +10,6 @@ const MissionList = ({ missions, onDelete }) => {
   const filteredMissions = useMemo(() => {
     console.log('--- Expensive filtering running ---');
     let temp = [...missions];
-    
-    for(let i=0; i<500000; i++) {
-        Math.sqrt(i);
-    }
 
     return temp
       .filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()))
