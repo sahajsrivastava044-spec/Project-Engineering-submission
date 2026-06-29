@@ -40,3 +40,11 @@
 ### 7. Double Fetch on Mount
 - **Change:** Added an empty dependency array `[]` to the `useEffect` and an `AbortController` to handle cleanup.
 - **Delta:** Prevented redundant network requests on component mount, saving server resources and eliminating race conditions in Strict Mode.
+
+### 8. DOM Overload
+- **Change:** Implemented client-side slicing in `MissionList.jsx` to render only the first 12 items initially, with a "Load More" button for pagination.
+- **Delta:** Reduced initial DOM nodes from **~3,000+** down to **~200**, resulting in a significantly faster and smoother initial paint and scroll experience.
+
+### 9. Unstable Callback
+- **Change:** Wrapped the `handleDelete` function in `useCallback` with a functional state update (`prev => ...`) and an empty dependency array.
+- **Delta:** Prevented all remaining unnecessary re-renders of `MissionCard` components when deleting an item or interacting with the parent component.

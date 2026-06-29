@@ -54,4 +54,22 @@ const MissionList = ({ missions, onDelete }) => {
             mission={mission} 
             onDelete={onDelete}
             style={cardStyle} 
-       
+          />
+        ))}
+      </div>
+      
+      {visibleCount < filteredMissions.length && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <button 
+            onClick={() => setVisibleCount(prev => prev + 12)}
+            className="action-btn"
+          >
+            Load More ({filteredMissions.length - visibleCount} remaining)
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MissionList;
