@@ -15,7 +15,14 @@ router.get('/', async (req, res) => {
       prisma.score.findMany({
         skip,
         take: limit,
-        orderBy: { date: 'desc' }
+        orderBy: { date: 'desc' },
+        select: {
+          id: true,
+          game: true,
+          player: true,
+          score: true,
+          date: true
+        }
       }),
       prisma.score.count()
     ]);
