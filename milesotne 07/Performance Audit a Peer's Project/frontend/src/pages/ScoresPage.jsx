@@ -26,9 +26,9 @@ const ScoresPage = () => {
     return () => controller.abort();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = React.useCallback((id) => {
     setScores(prev => prev.filter(s => s.id !== id));
-  };
+  }, []);
 
   return (
     <div className="app-container">
