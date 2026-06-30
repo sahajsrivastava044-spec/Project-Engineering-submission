@@ -5,7 +5,7 @@ const db = require('../db');
 // GET all users in the system
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM users');
+    const { rows } = await db.query('SELECT * FROM users WHERE deleted_at IS NULL');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Database execution error' });
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // GET single user details by ID
 router.get('/:id', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [req.params.id]);
+    const { rows } = await db.query('SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
     res.json(rows[0]);
   } catch (err) {
@@ -40,8 +40,8 @@ router.post('/', async (req, res) => {
 // DELETE user permanently from the system
 router.delete('/:id', async (req, res) => {
   try {
-    // Hard DELETE from users table
-    const { rowCount } = await db.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+    // Soft DELETE from users table
+    const { rowCount } = await db.query('UPDATE users SET deleted_at = NOW() WHERE id = $1', [req.params.id]);
     
     if (rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
