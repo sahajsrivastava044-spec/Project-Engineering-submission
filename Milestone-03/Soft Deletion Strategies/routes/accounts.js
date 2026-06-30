@@ -5,7 +5,7 @@ const db = require('../db');
 // GET all accounts in the system
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM accounts');
+    const { rows } = await db.query('SELECT * FROM accounts WHERE deleted_at IS NULL');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Database execution error' });
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // GET user accounts by user_id
 router.get('/user/:userId', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM accounts WHERE user_id = $1', [req.params.userId]);
+    const { rows } = await db.query('SELECT * FROM accounts WHERE user_id = $1 AND deleted_at IS NULL', [req.params.userId]);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Database retrieval error' });
@@ -39,8 +39,8 @@ router.post('/', async (req, res) => {
 // DELETE single account permanently from the system
 router.delete('/:id', async (req, res) => {
   try {
-    // Hard DELETE from accounts table
-    const { rowCount } = await db.query('DELETE FROM accounts WHERE id = $1', [req.params.id]);
+    // Soft DELETE from accounts table
+    const { rowCount } = await db.query('UPDATE accounts SET deleted_at = NOW() WHERE id = $1', [req.params.id]);
     
     if (rowCount === 0) {
       return res.status(404).json({ error: 'Account not found' });
